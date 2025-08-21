@@ -13,8 +13,12 @@ app.use('/api/books', require('./routes/books'));
 app.get('/', (req, res) => {
   res.send('Hello from Vercel + Railway DB');
 });
+
+const PORT = process.env.PORT || 3000;
+if (process.env.NODE_ENV !== 'vercel') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port http://localhost:${PORT}`);
+  });
+}
+
 module.exports = app;
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on port http://localhost:${PORT}`);
-// });

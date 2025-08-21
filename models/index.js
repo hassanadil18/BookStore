@@ -5,13 +5,24 @@ const Book = require('./book');
 User.initModel(sequelize);
 Book.initModel(sequelize);
 
-(async () => {
+User.initModel(sequelize);
+Book.initModel(sequelize);
+
+const syncDatabase = async () => {
   try {
-    await sequelize.sync({ alter: true });
-    console.log('Database & tables synced');
+    await sequelize.authenticate();
+    console.log('Database connection has been established successfully.');
+    
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync({ alter: true });
+      console.log('Database & tables synced');
+    }
   } catch (err) {
-    console.error('DB sync error:', err);
+    console.error('Unable to connect to the database:', err);
   }
-})();
+};
+
+// Run sync
+syncDatabase();
 
 module.exports = { sequelize, User, Book };
