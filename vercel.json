@@ -11,15 +11,5 @@
             "src": "/(.*)",
             "dest": "server.js"
         }
-    ],
-    "env": {
-        "NODE_ENV": "production"
-    },
-    "regions": ["dxb1"],
-    "functions": {
-        "server.js": {
-            "memory": 1024,
-            "maxDuration": 10
-        }
-    }
+    ]
 }

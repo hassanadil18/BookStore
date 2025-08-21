@@ -3,10 +3,13 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// Error handling middleware
+// Initialize database and models
+const { initDatabase } = require('./models');
+
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({
+  res.status(500).json({ 
     error: 'Something went wrong!',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
@@ -14,28 +17,24 @@ app.use((err, req, res, next) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Initialize database and models
-const { sequelize, initDatabase } = require('./models');
-
-// Initialize routes only after ensuring database connection
+// Initialize application
 async function initializeApp() {
   try {
-    // Initialize database
+    // Initialize database first
     await initDatabase();
-    console.log('Database initialization completed successfully.');
-
+    
+    // Middleware
     app.use(express.json());
     
-    // Static file serving - commented out for Vercel deployment
-    // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-    
+    // Routes
     app.use('/api/auth', require('./routes/auth'));
     app.use('/api/users', require('./routes/users'));
     app.use('/api/books', require('./routes/books'));
 
+    // Root route
     app.get('/', (req, res) => {
       res.json({
         message: 'API is running',
@@ -44,19 +43,20 @@ async function initializeApp() {
       });
     });
 
-    const PORT = process.env.PORT || 3000;
+    // Start server (not needed for Vercel)
     if (process.env.NODE_ENV !== 'production') {
+      const PORT = process.env.PORT || 3000;
       app.listen(PORT, () => {
         console.log(`Server running on port http://localhost:${PORT}`);
       });
     }
   } catch (error) {
-    console.error('Unable to start application:', error);
-    throw error;
+    console.error('Failed to initialize application:', error);
+    process.exit(1);
   }
 }
 
-// Initialize the application
-initializeApp().catch(console.error);
+// Initialize the app
+initializeApp();
 
 module.exports = app;
