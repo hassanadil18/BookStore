@@ -18,14 +18,14 @@ app.get('/health', (req, res) => {
 });
 
 // Initialize database and models
-const { sequelize } = require('./models');
+const { sequelize, initDatabase } = require('./models');
 
 // Initialize routes only after ensuring database connection
 async function initializeApp() {
   try {
-    // Test database connection
-    await sequelize.authenticate();
-    console.log('Database connection established successfully.');
+    // Initialize database
+    await initDatabase();
+    console.log('Database initialization completed successfully.');
 
     app.use(express.json());
     
