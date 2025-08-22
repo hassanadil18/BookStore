@@ -1,13 +1,14 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
 const path = require('path');
+const { initDatabase } = require('./models');
 
-require('./models');
+const app = express();
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
+app.use('/api/users', require('./routes/user'));
 app.use('/api/books', require('./routes/books'));
 
 app.get('/', (req, res) => {
@@ -15,10 +16,9 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-if (process.env.NODE_ENV !== 'vercel') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port http://localhost:${PORT}`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
 
 module.exports = app;

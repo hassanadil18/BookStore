@@ -3,18 +3,19 @@ const { DataTypes, Model } = require('sequelize');
 class Book extends Model {
   static initModel(sequelize) {
     Book.init({
-      title: DataTypes.STRING,
-      author: DataTypes.STRING,
-      pdfUrl: DataTypes.STRING,
+      id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+      title: { type: DataTypes.STRING, allowNull: false },
+      author: { type: DataTypes.STRING, allowNull: false },
+      pdfUrl: { type: DataTypes.STRING },
       status: {
         type: DataTypes.ENUM('available', 'unavailable'),
-        defaultValue: 'available'
-      }
+        defaultValue: 'available',
+      },
     }, {
       sequelize,
-      modelName: 'Book'
+      modelName: 'Book',
+      tableName: 'books',
     });
-    return Book;
   }
 }
 
