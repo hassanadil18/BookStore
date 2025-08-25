@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const otpStore = {};
+// let tokenBlacklist = [];
+const tokenBlacklist = require('../utils/tokenBlacklist');
 exports.signup = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
@@ -47,7 +49,7 @@ exports.login = async (req, res) => {
 };
 exports.forgotPassword = async (req, res) => {
     try {
-        const {email}=req.body;
+        const { email } = req.body;
         if (!email) {
             return res.status(400).json({ message: 'Provide email' });
         }
@@ -65,6 +67,23 @@ exports.forgotPassword = async (req, res) => {
         return res.status(500).json({ message: 'Forgot password error', error: err.message });
     }
 };
+
+exports.logout = (req, res) => {
+    try {
+        const authHeader = req.headers["authorization"];
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(400).json({ message: "No token provided or wrong format" });
+        }
+
+        const token = authHeader.split(" ")[1];
+        tokenBlacklist.add(token);
+
+        return res.json({ message: "Logged out successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Logout failed" });
+    }
+};
+
 
 
 exports.updatePassword = async (req, res) => {
