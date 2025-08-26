@@ -1,12 +1,13 @@
 const multer = require('multer');
-const path = require('path');
+const cloudinary = require('../config/cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/pdfs');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'bookstore/pdfs',
+        resource_type: 'raw',
+        allowed_formats: ['pdf']
     }
 });
 

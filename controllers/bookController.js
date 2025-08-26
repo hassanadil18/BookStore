@@ -1,10 +1,6 @@
 const { Book } = require('../models');
 const fs = require('fs');
 const path = require('path');
-const getFullPdfUrl = (req, pdfUrl) => {
-    if (!pdfUrl) return null;
-    return `${req.protocol}://${req.get('host')}/${pdfUrl}`;
-};
 
 
 exports.createBook = async (req, res) => {
@@ -25,9 +21,7 @@ exports.createBook = async (req, res) => {
 
         res.status(201).json({
             message: 'Book created successfully',
-            book: {
-                ...newBook.toJSON(),
-                pdfUrl: getFullPdfUrl(req, newBook.pdfUrl)
+            book: newBook
             }
         });
 
