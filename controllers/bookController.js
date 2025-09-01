@@ -44,13 +44,20 @@ exports.uploadBookPdf = async (req, res) => {
 
         if (!book) return res.status(404).json({ error: 'Book not found' });
 
+        if (!req.file) {
+            return res.status(400).json({ error: 'No PDF file uploaded' });
+        }
+
+        // Delete old file if it exists
         if (book.pdfUrl && fs.existsSync(book.pdfUrl)) {
             fs.unlinkSync(book.pdfUrl);
         }
 
+        // Save the new PDF path
         book.pdfUrl = req.file.path;
         await book.save();
 
+        // Return the updated book with full PDF URL
         res.json({
             message: 'PDF uploaded successfully',
             book: {
@@ -86,13 +93,23 @@ exports.downloadBookPdf = async (req, res) => {
     try {
         const { id } = req.params;
         const book = await Book.findByPk(id);
-        if (!book || !book.pdfUrl || !fs.existsSync(book.pdfUrl)) {
-            return res.status(404).json({ message: 'PDF not found' });
+        
+        if (!book || !book.pdfUrl) {
+            return res.status(404).json({ error: 'PDF not found' });
         }
 
-        res.download(book.pdfUrl);
+        if (!fs.existsSync(book.pdfUrl)) {
+            return res.status(404).json({ error: 'PDF file not found' });
+        }
+
+        // Use the streamUtils to stream the file
+        const { streamFileToResponse } = require('../utils/streamUtils');
+        await streamFileToResponse(book.pdfUrl, res);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err);
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message });
+        }
     }
 };
 
